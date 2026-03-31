@@ -69,3 +69,75 @@ FROM STATION
 WHERE LEFT(CITY,1) NOT IN ('A','E','I','O','U');
 
 -- Weather Observation Station 10
+SELECT DISTINCT CITY
+FROM STATION
+WHERE RIGHT(CITY,1) NOT IN ('A','E','I','O','U');
+
+-- Weather Observation Station 11
+SELECT DISTINCT City
+FROM Station
+WHERE LEFT(CITY,1) NOT IN ('A','E','I','O','U') OR
+RIGHT(CITY,1) NOT IN ('A','E','I','O','U');
+
+-- Weather Observation Station 12
+SELECT DISTINCT City
+FROM Station
+WHERE LEFT(CITY,1) NOT IN ('A','E','I','O','U') AND
+RIGHT(CITY,1) NOT IN ('A','E','I','O','U');
+
+-- Higher Than 75 Marks
+SELECT Name
+FROM Students
+WHERE Marks > 75
+ORDER BY RIGHT(Name,3) ASC, ID ASC;
+
+-- Employee Names
+SELECT name
+FROM Employee
+ORDER BY name ASC;
+
+-- Employee Salaries
+SELECT name FROM Employee
+WHERE salary > 2000 
+AND months <10
+ORDER BY employee_id ASC;
+
+--Another Level 
+-- Weather Observation Station 15
+SELECT ROUND(Long_w,4)
+FROM Station 
+WHERE Lat_n =(SELECT MAX(Lat_n) 
+FROM Station WHERE Lat_n < 137.2345);
+
+-- Weather Observation Station 16
+SELECT ROUND(Lat_n,4)
+FROM Station
+WHERE Lat_n = (SELECT MIN(Lat_n)
+FROM Station 
+WHERE Lat_n > 38.7780);
+
+-- Weather Observation Station 17
+SELECT ROUND(Long_w,4)
+FROM Station
+WHERE Lat_n = (SELECT MIN(Lat_n)
+FROM Station
+WHERE Lat_n > 38.7780);
+
+
+-- Weather Observation Station 18
+SELECT ROUND ((MAX(Long_W) - MIN(Long_W)) + (MAX(Lat_n) - MIN(Lat_n)),4)
+FROM Station;
+
+-- Weather Observation Station 19
+SELECT ROUND(
+    SQRT(
+        POW(MAX(LAT_N) - MIN(LAT_N), 2) +
+        POW(MAX(LONG_W) - MIN(LONG_W), 2)
+    ), 
+4)
+FROM STATION;
+
+
+
+
+
