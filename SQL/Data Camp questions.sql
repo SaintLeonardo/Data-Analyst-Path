@@ -78,5 +78,95 @@ INNER JOIN economies AS e
 ON c.code = e.code
 	AND e.year = p.year;
 
--- 
+-- Inner Join
+--Perform an inner join with cities AS c1 on the left and countries as c2 on the right.
+-- Use code as the field to merge your tables on.
+SELECT 
+    c1.name AS city,
+    code,
+    c2.name AS country,
+    region,
+    city_proper_pop
+FROM cities AS c1
+INNER JOIN countries AS c2
+ON c1.country_code = c2.code
+ORDER BY code DESC;
 
+-- Complete the LEFT JOIN with the countries table on the left and the economies table on the right on the code field.
+-- Filter the records from the year 2010.
+SELECT name, region, gdp_percapita
+FROM countries AS c
+LEFT JOIN economies AS e
+USING(code)
+WHERE year = 2010;
+
+-- To calculate per capita GDP per region, begin by grouping by region.
+-- After your GROUP BY, choose region in your SELECT statement, followed by average GDP per capita using the AVG() function, with AS avg_gdp as your alias.
+SELECT region, AVG(gdp_percapita) AS avg_gdp
+FROM countries AS c
+LEFT JOIN economies AS e
+USING(code)
+WHERE year = 2010
+GROUP BY region;
+
+-- Order the result set by the average GDP per capita from highest to lowest.
+-- Return only the first 10 records in your result.
+SELECT region, AVG(gdp_percapita) AS avg_gdp
+FROM countries AS c
+LEFT JOIN economies AS e
+USING(code)
+WHERE year = 2010
+GROUP BY region
+ORDER BY avg_gdp DESC
+LIMIT 10;
+
+-- Full Join
+-- Perform a full join with countries (left) and currencies (right).
+-- Filter for the North America region or NULL country names.
+SELECT name AS country, code, region, basic_unit
+FROM countries
+FULL JOIN currencies
+USING (code)
+WHERE region = 'North America' OR name IS NULL
+ORDER BY region;
+
+-- Complete the FULL JOIN with countries as c1 on the left and languages as l on the right, using code to perform this join.
+-- Next, chain this join with another FULL JOIN, placing currencies on the right, joining on code again.
+SELECT 
+	c1.name AS country, 
+    region, 
+    l.name AS language,
+	basic_unit, 
+    frac_unit
+FROM countries as c1 
+FULL JOIN languages AS l
+ON c1.code = l.code
+FULL JOIN currencies AS c2
+ON c1.code = c2.code
+WHERE region LIKE 'M%esia';
+
+
+-- CROSS JOIN
+-- Returned duplicate rows
+SELECT c.name AS country, l.name AS language
+FROM countries AS c        
+CROSS JOIN languages AS l
+WHERE c.code in ('PAK','IND')
+	AND l.code in ('PAK','IND');
+
+-- Complete the join of countries AS c with populations as p.
+-- Filter on the year 2010.
+-- Sort your results by life expectancy in ascending order.
+-- Limit the result to five countries.
+
+
+-- SELF JOIN
+-- Perform an inner join of populations with itself ON country_code, aliased p1 and p2 respectively.
+-- Select the country_code from p1 and the size field from both p1 and p2, aliasing p1.size as size2010 and p2.size as size2015 (in that order).
+-- Select aliased fields from populations as p1
+SELECT p1.country_code, p1.size AS size2010, p2.size AS size2015
+FROM populations AS p1
+INNER JOIN populations AS p2
+ON p1.country_code = p2.country_code;
+
+-- 
