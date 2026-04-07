@@ -189,3 +189,77 @@ UNION
 SELECT code, year
 FROM economies
 ORDER BY country_code, year;
+
+-- INTERSECT
+-- Return all cities with the same name as a country
+SELECT name
+FROM countries 
+INTERSECT 
+SELECT name
+FROM cities;
+
+-- EXCEPT
+-- Return all cities that do not have the same name as a country
+SELECT name
+FROM cities
+EXCEPT
+SELECT name
+FROM countries
+ORDER BY name;
+
+-- SEMI JOIN
+-- Create a semi join out of the two queries you've written, which filters unique languages returned in the first query for only those languages spoken in the 'Middle East'.
+SELECT DISTINCT name
+FROM languages
+WHERE code IN
+    (SELECT code
+    FROM countries
+    WHERE region = 'Middle East')
+ORDER BY name;
+
+-- ANTI JOIN
+SELECT code, name
+FROM countries
+WHERE continent = 'Oceania'
+  AND code NOT IN
+    (SELECT code
+    FROM currencies);
+
+-- Filter for only those populations where life expectancy is 1.15 times higher than average
+SELECT *
+FROM populations
+WHERE year = 2015
+  AND life_expectancy > 1.15 *
+  (SELECT AVG(life_expectancy)
+   FROM populations
+   WHERE year = 2015);  
+
+-- Filter for largest urbanarea population in capital
+SELECT name, country_code, urbanarea_pop
+FROM cities
+WHERE name IN
+    (SELECT capital
+    FROM countries)
+ORDER BY urbanarea_pop DESC;
+
+-- Write a LEFT JOIN with countries on the left and the cities on the right, joining on country code.
+--In the SELECT statement of your join, include country names as country, and count the cities in each country, aliased as cities_num.
+-- Sort by cities_num (descending), and country (ascending), limiting to the first nine records.
+-- Find top nine countries with the most cities
+SELECT co.name AS country,
+COUNT(ci.country_code) AS cities_num
+FROM countries AS co
+LEFT JOIN cities AS ci
+ON co.code = ci.country_code
+GROUP BY country
+ORDER BY cities_num DESC
+LIMIT 9;
+
+---- Subquery that provides the count of cities   
+SELECT countries.name AS country,   
+  (SELECT COUNT(cities.name)
+   FROM cities
+   WHERE countries.code = cities.country_code) AS cities_num
+FROM countries
+ORDER BY cities_num DESC, country
+LIMIT 9;
