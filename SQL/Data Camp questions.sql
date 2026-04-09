@@ -262,4 +262,85 @@ SELECT countries.name AS country,
    WHERE countries.code = cities.country_code) AS cities_num
 FROM countries
 ORDER BY cities_num DESC, country
-LIMIT 9;
+LIMIT 9;                                                                                                
+
+-- Another day
+-- FROM SUBQUERIES
+SELECT local_name, sub.lang_num
+FROM countries,
+  (SELECT code, COUNT(*) AS lang_num
+  FROM languages
+  GROUP BY code) AS sub
+WHERE countries.code = sub.code
+ORDER BY lang_num DESC;
+
+--Subquery Challenge
+-- Select country code, inflation_rate, and unemployment_rate from economies.
+-- Filter code for the set of countries which contain the words "Republic" or "Monarchy" in their gov_form.
+SELECT code, inflation_rate, unemployment_rate
+FROM economies
+WHERE year = 2015 
+  AND code IN
+	(SELECT code
+  FROM countries
+  WHERE  gov_form LIKE
+  '%Republic%' OR gov_form LIKE '%Monarchy%')
+ORDER BY inflation_rate;
+
+-- Final Challenge
+-- From cities, select the city name, country code, proper population, and metro area population, as well as the field city_perc, which calculates the proper population as a percentage of metro area population for each city (using the formula provided).
+-- Filter city name with a subquery that selects capital cities from countries in 'Europe' or continents with 'America' at the end of their name.
+-- Exclude NULL values in metroarea_pop.
+-- Order by city_perc (descending) and return only the first 10 rows.
+-- Select fields from cities
+SELECT name, country_code, city_proper_pop, metroarea_pop,
+city_proper_pop/metroarea_pop * 100 AS city_perc
+FROM cities
+-- Use subquery to filter city name
+WHERE name IN (
+    SELECT capital
+    FROM countries
+    WHERE continent = 'Europe' OR
+    continent LIKE '%America'
+)
+-- Add filter condition such that metroarea_pop does not have null values
+AND metroarea_pop IS NOT NULL
+-- Sort and limit the result
+ORDER BY city_perc DESC
+LIMIT 10;
+
+
+-- DATA MANIPULATION
+-- CASE WHEN
+-- Create a CASE statement that identifies whether a match in Germany included FC Bayern Munich, FC Schalke 04, or Other as the home team.
+SELECT 
+	CASE WHEN hometeam_id = 10189 THEN 'FC Schalke 04'
+        WHEN hometeam_id = 9823 THEN 'FC Bayern Munich'
+         ELSE 'Other' END AS home_team,
+	COUNT(id) AS total_matches
+FROM matches_germany
+GROUP BY home_team;
+
+-- Create a CASE statement to identify matches as home wins, home losses, or else ties.
+SELECT 
+	date,
+	-- Identify home wins, losses, or ties
+	CASE WHEN home_goal > away_goal THEN 'Home win!'
+        WHEN home_goal < away_goal THEN 'Home loss :(' 
+        ELSE 'Tie' END AS outcome
+FROM matches_spain;
+
+-- Complete the CASE statement to identify Barcelona's away team games as wins, losses, or ties.
+-- Left join the teams_spain table team_api_id column on the matches_spain table hometeam_id column. This retrieves the identity of the home team opponent.
+-- Filter the query to only include matches where Barcelona (awayteam_id = 8634) was the away team.
+-- Select matches where Barcelona was the away team
+SELECT  
+	m.date,
+	t.team_long_name AS opponent,
+	CASE WHEN home_goal < away_goal THEN 'Barcelona win!'
+        WHEN home_goal > away_goal THEN 'Barcelona loss :(' 
+        ELSE 'Tie' END AS outcome
+FROM matches_spain AS m
+LEFT JOIN teams_spain AS t 
+ON m.hometeam_id = t.team_api_id
+WHERE m.awayteam_id = 8634;
