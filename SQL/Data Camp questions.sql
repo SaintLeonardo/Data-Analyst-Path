@@ -344,3 +344,59 @@ FROM matches_spain AS m
 LEFT JOIN teams_spain AS t 
 ON m.hometeam_id = t.team_api_id
 WHERE m.awayteam_id = 8634;
+
+-- Use the CASE statement in the WHERE clause to filter where hometeam_id is 9857 and home goals exceed away goals.
+---Use the CASE statement in the WHERE clause to filter where awayteam_id is 9857 and away goals exceed home goals.
+--End the CASE statement by excluding games that Bologna did not win.
+SELECT 
+	season,
+    date,
+	home_goal,
+	away_goal
+FROM matches_italy
+WHERE 
+	CASE WHEN hometeam_id = 9857 AND home_goal > away_goal THEN 'Bologna Win'
+        WHEN awayteam_id = 9857 AND away_goal > home_goal THEN 'Bologna Win' 
+		END IS NOT NULL;
+
+
+-- Create a CASE WHEN statement counting the matches played in the '2012/2013' season.
+--Create a CASE WHEN statement counting the matches played in the'2013/2014' season, aliasing as matches_2013_2014.
+SELECT 
+	c.name AS country,
+    -- Count matches in 2012/2013
+	COUNT(CASE WHEN m.season = '2012/2013' THEN m.id END) AS matches_2012_2013,
+    -- Count matches in 2013/2014
+	COUNT(CASE WHEN m.season = '2013/2014' THEN m.id END) AS matches_2013_2014
+FROM country AS c
+LEFT JOIN match AS m
+ON c.id = m.country_id
+GROUP BY country;
+
+--Create a CASE statement to calculate the total number of home goals where the hometeam_id is 8560.
+--Create a second CASE statement to calculate the total number of away goals where the awayteam_id is 8560, aliasing the column as away_goals.
+--Group the query by season.
+SELECT season,
+	-- SUM the home goals
+    SUM(CASE WHEN hometeam_id = 8560 THEN home_goal END) AS home_goals,
+    -- SUM the away goals
+    SUM(CASE WHEN awayteam_id = 8560 THEN away_goal END) AS away_goals
+FROM match
+-- Group the results by season
+GROUP BY season;
+
+-- Within an AVG() function, complete the CASE statement by checking if m.home_goal is not equal to m.away_goal, assigning a value of 0 if this condition is met.
+-- Repeat this process to compare home and away goals in '2014/2015', aliasing as ties_2014_2015.
+SELECT 
+	c.name AS country,
+    -- Calculate the fraction of tied games in each season
+	AVG(CASE WHEN m.season='2013/2014' AND m.home_goal = m.away_goal THEN 1
+			WHEN m.season='2013/2014' AND m.home_goal != m.away_goal THEN 0
+			END) AS ties_2013_2014,
+	AVG(CASE WHEN m.season='2014/2015' AND m.home_goal = m.away_goal THEN 1
+			WHEN m.season='2014/2015' AND m.home_goal != m.away_goal THEN 0
+			END) AS ties_2014_2015
+FROM country AS c
+LEFT JOIN matches AS m
+ON c.id = m.country_id
+GROUP BY country;
